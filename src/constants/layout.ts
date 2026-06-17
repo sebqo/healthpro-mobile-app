@@ -1,0 +1,13 @@
+export const HOUR_WIDTH = 120;
+export const TIMELINE_WIDTH = HOUR_WIDTH * 24;
+export const CARD_HEIGHT = 68;
+export const LANE_GAP = 14;
+export const MIN_ACTIVITY_WIDTH = 130;
+export const TIMELINE_VIEWPORT_HEIGHT = 540;
+export const MIN_WEEK_ZOOM = 0.65;
+export const MAX_WEEK_ZOOM = 1.6;
+export const NUTRITION_DATE_CARD_WIDTH = 62;
+export const NUTRITION_DATE_CARD_GAP = 7;
+export const NUTRITION_DATE_ITEM_WIDTH = NUTRITION_DATE_CARD_WIDTH + NUTRITION_DATE_CARD_GAP;
+export const NUTRITION_DATE_WINDOW_SIZE = 61;
+export const NUTRITION_FIXED_HEADER_HEIGHT = 124;
