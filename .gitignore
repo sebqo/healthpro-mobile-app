@@ -7,3 +7,5 @@ web-build/
 *.log
 src_broken_refactor/
 App.broken-refactor.tsx
+
+backups/
