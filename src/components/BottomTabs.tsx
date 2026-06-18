@@ -1,18 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { FlatList, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from '../styles/styles';
-import { accent, activityColorPalette, carbsColor, fatColor, proteinColor } from '../constants/colors';
-import { CARD_HEIGHT, HOUR_WIDTH, LANE_GAP, MAX_WEEK_ZOOM, MIN_WEEK_ZOOM, NUTRITION_DATE_CARD_WIDTH, NUTRITION_DATE_ITEM_WIDTH, NUTRITION_FIXED_HEADER_HEIGHT, TIMELINE_VIEWPORT_HEIGHT, TIMELINE_WIDTH } from '../constants/layout';
-import { nutritionGoals } from '../constants/nutrition';
-import type { Activity, ActivityDraft, ActivityModalMode, ActivityViewMode, CalorieStep, CalendarDay, EditableStatKey, EditingDateTarget, EditingTimeTarget, Meal, NutritionTotals, RepeatOption, SleepStep, Stat, TabKey, Theme } from '../types';
-import { addDays, addMonths, formatDateChip, getAgendaTitle, getCalendarDays, getDateDistance, getMonthStartISO, getMonthTitle, getNutritionDateHeading, getNutritionWeekDays, getNutritionWindowStart, getTodayISO, getWeekDays, getWeekStartISO, isToday } from '../utils/date';
-import { adjustTime, buildTime, formatMealTime, formatTimeFromMinutes, getCurrentLocalMinutes, getTimeParts, normalizeTimePart, safeParseMinutes } from '../utils/time';
-import { buildTimelineItems, formatActivityTime, getActivitiesForDate, getRemainingTodayActivities, normalizeActivityDraft } from '../utils/activities';
-import { clampMacroInput, getMealStreak, getMealsForDate, getNutritionTotals, hasMealsForDate } from '../utils/nutrition';
-import { formatCalories, formatHydration, hexToRgba } from '../utils/formatting';
-
+import { accent } from '../constants/colors';
 import { tabs } from '../constants/tabs';
+import type { TabKey, Theme } from '../types';
 
 export function BottomTabs({
   activeTab,
@@ -56,7 +47,20 @@ export function BottomTabs({
             ]}
             onPress={() => onChange(tab.key)}
           >
-            <Ionicons name={active ? tab.activeIcon : tab.icon} size={25} color={color} />
+            <Ionicons
+              name={active ? tab.activeIcon : tab.icon}
+              size={25}
+              color={color}
+              style={
+                active
+                  ? {
+                      textShadowColor: accent,
+                      textShadowOffset: { width: 0, height: 0 },
+                      textShadowRadius: activeTheme.mode === 'dark' ? 3 : 2,
+                    }
+                  : undefined
+              }
+            />
             <Text style={[styles.tabText, { color: active ? accent : activeTheme.tabText }]}>{tab.key}</Text>
           </TouchableOpacity>
         );
@@ -71,6 +75,7 @@ export function BottomTabs({
               backgroundColor: activeTheme.mode === 'dark' ? 'rgba(31,33,35,0.94)' : 'rgba(255,255,255,0.96)',
               borderColor: accent,
               shadowColor: accent,
+              shadowOpacity: dark ? 0.5 : 0.24,
             },
           ]}
         >

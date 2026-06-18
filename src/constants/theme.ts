@@ -5,7 +5,7 @@ export const darkTheme: Theme = {
   safeAreaBg: '#0b0d0e',
   phoneBg: '#0b0d0e',
   homeGradient: ['#151719', '#0b0d0e', '#151719'],
-  statsGradient: ['rgba(43, 45, 47, 0.9)', 'rgba(31, 33, 35, 0.86)'],
+  statsGradient: ['rgba(94, 94, 94, 0.45)', 'rgba(27, 29, 25, 0.88)'],
   text: '#f7f7f5',
   titleText: '#fbfbf8',
   mutedText: '#9b9c9e',

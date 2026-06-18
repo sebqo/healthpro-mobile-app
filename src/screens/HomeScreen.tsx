@@ -12,6 +12,21 @@ import { buildTimelineItems, formatActivityTime, getActivitiesForDate, getRemain
 import { clampMacroInput, getMealStreak, getMealsForDate, getNutritionTotals, hasMealsForDate } from '../utils/nutrition';
 import { formatCalories, formatHydration, hexToRgba } from '../utils/formatting';
 
+// --- Pomocná funkcia na prepočet stupňov na súradnice pre Expo Linear Gradient ---
+const getGradientCoordinates = (degree: number) => {
+  const rad = (degree * Math.PI) / 180;
+  return {
+    start: [
+      0.5 - Math.sin(rad) * 0.5,
+      0.5 + Math.cos(rad) * 0.5,
+    ] as [number, number],
+    end: [
+      0.5 + Math.sin(rad) * 0.5,
+      0.5 - Math.cos(rad) * 0.5,
+    ] as [number, number],
+  };
+};
+
 export function HomeScreen({
   activeTheme,
   stats,
@@ -30,14 +45,20 @@ export function HomeScreen({
   const nextActivities = getRemainingTodayActivities(activities, 3);
   const hasRemainingActivities = nextActivities.length > 0;
 
+  const ACTIVITY_GRADIENT_ANGLE = 135; 
+  const activityGradientCoords = getGradientCoordinates(ACTIVITY_GRADIENT_ANGLE);
+
+  const STATS_GRADIENT_ANGLE = 230; 
+  const statsGradientCoords = getGradientCoordinates(STATS_GRADIENT_ANGLE);
+
   return (
     <LinearGradient colors={activeTheme.homeGradient} locations={[0, 0.52, 1]} style={styles.homeContent}>
-      <View style={styles.homeHeader}>
+      <View style={[styles.screenHeaderRow, styles.homeHeader]}>
         <View style={styles.homeTitleBlock}>
           <Text style={[styles.homePageTitle, { color: activeTheme.titleText }]}>Today</Text>
         </View>
 
-        <View style={styles.homeHeaderActions}>
+        <View style={[styles.screenHeaderActions, styles.homeHeaderActions]}>
           <TouchableOpacity
             activeOpacity={0.82}
             style={[
@@ -53,15 +74,7 @@ export function HomeScreen({
           <TouchableOpacity
             activeOpacity={0.82}
             onPress={onNewActivity}
-            style={[
-              styles.homeActionButton,
-              {
-                backgroundColor: accent,
-                borderColor: 'rgba(184,239,47,0.36)',
-                shadowColor: accent,
-                shadowOpacity: activeTheme.mode === 'dark' ? 0.48 : 0.22,
-              },
-            ]}
+            style={styles.topActionButton}
           >
             <Ionicons name="add" size={25} color="#111111" />
           </TouchableOpacity>
@@ -84,49 +97,23 @@ export function HomeScreen({
             <LinearGradient
               colors={
                 activeTheme.mode === 'dark'
-                  ? ['rgba(31,35,34,0.50)', 'rgba(16,18,19,0.43)', 'rgba(16,18,19,0.32)']
-                  : ['rgba(255,255,255,0.78)', 'rgba(255,255,255,0.63)', 'rgba(250,252,246,0.50)']
+                  ? ['rgba(80, 77, 77, 0.12)', 'rgba(60, 73, 30, 0.3)']
+                  : ['rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.5)']
               }
-              locations={[0, 0.56, 1]}
+              locations={[0, 1]}
+              start={activityGradientCoords.start}
+              end={activityGradientCoords.end}
               style={[
                 styles.homeActivityCard,
                 {
-                  borderColor:
-                    activeTheme.mode === 'dark'
-                      ? hexToRgba(activity.color, 0.15)
-                      : hexToRgba(activity.color, 0.08),
-                  shadowColor: activeTheme.mode === 'dark' ? activity.color : activeTheme.shadowColor,
-                  shadowOpacity: activeTheme.mode === 'dark' ? 0.16 : 0.09,
+                  borderColor: activeTheme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                  borderWidth: 1,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.1,
+                  shadowRadius: 10,
                 },
               ]}
             >
-              <View
-                pointerEvents="none"
-                style={[
-                  styles.activityGlassSheen,
-                  {
-                    backgroundColor: activeTheme.mode === 'dark' ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.58)',
-                  },
-                ]}
-              />
-              <View
-                style={[
-                  styles.activityEdgeGlow,
-                  {
-                    backgroundColor: hexToRgba(activity.color, activeTheme.mode === 'dark' ? 0.22 : 0.08),
-                  },
-                ]}
-              />
-              <LinearGradient
-                pointerEvents="none"
-                colors={[
-                  hexToRgba(activity.color, activeTheme.mode === 'dark' ? 0.18 : 0.06),
-                  hexToRgba(activity.color, 0),
-                ]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.activityEdgeFade}
-              />
               <View style={styles.activityTextBlock}>
                 <View style={styles.activityCardHeader}>
                   <Text style={[styles.activityTitle, { color: activeTheme.titleText }]} numberOfLines={1}>
@@ -144,7 +131,15 @@ export function HomeScreen({
               <View
                 style={[
                   styles.activityAccent,
-                  { backgroundColor: activity.color },
+                  { 
+                    backgroundColor: activity.color,
+                    width: 4,
+                    shadowColor: activity.color,
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 0.7,
+                    shadowRadius: 12,
+                    elevation: 8,
+                  }
                 ]}
               />
             </LinearGradient>
@@ -175,8 +170,11 @@ export function HomeScreen({
         )}
       </ScrollView>
 
+      {/* APLIKOVANÉ SÚRADNICE PRE TODAY'S STATS GRADIENT */}
       <LinearGradient
         colors={activeTheme.statsGradient}
+        start={statsGradientCoords.start}
+        end={statsGradientCoords.end}
         style={[
           styles.statsCard,
           {
@@ -209,7 +207,14 @@ export function HomeScreen({
               <View
                 style={[
                   styles.statIconCircle,
-                  { backgroundColor: stat.accentColor ? hexToRgba(statAccent, 0.18) : activeTheme.statIconBg },
+                  { 
+                    backgroundColor: stat.accentColor ? hexToRgba(statAccent, 0.18) : activeTheme.statIconBg,
+                    shadowColor: statAccent,
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 8,
+                    elevation: 6,
+                  },
                 ]}
               >
                 <Ionicons name={stat.icon} size={18} color={statAccent} />
@@ -227,7 +232,16 @@ export function HomeScreen({
                   )}
                 </View>
                 <View style={[styles.statTrack, { backgroundColor: activeTheme.statTrack }]}>
-                  <View style={[styles.statFill, { width: `${stat.progress * 100}%`, backgroundColor: statAccent }]} />
+                  <View 
+                    style={[
+                      styles.statFill, 
+                      { 
+                        width: `${stat.progress * 100}%`, 
+                        backgroundColor: statAccent,
+                        shadowColor: statAccent, // Iba farba tieňa ostáva dynamická
+                      }
+                    ]} 
+                  />
                 </View>
               </View>
             </TouchableOpacity>

@@ -37,6 +37,8 @@ export function NutritionScreen({
   const weekDays = getNutritionWeekDays(nutritionWindowStartDate, selectedDate);
   const nutritionListRef = useRef<FlatList<(typeof weekDays)[number]> | null>(null);
   const pendingNutritionCenterDate = useRef<string | null>(null);
+  const shouldCenterNutritionDateRef = useRef(true);
+  const shouldAnimateNutritionCenterRef = useRef(false);
   const [nutritionDateViewportWidth, setNutritionDateViewportWidth] = useState(0);
   const [visibleNutritionMonthDate, setVisibleNutritionMonthDate] = useState(getMonthStartISO(selectedDate));
   const nutritionViewabilityConfig = useRef({ itemVisiblePercentThreshold: 45 }).current;
@@ -74,28 +76,51 @@ export function NutritionScreen({
     },
   ];
 
+  const centerNutritionDate = (targetDate: string, animated: boolean, windowStartDate = nutritionWindowStartDate) => {
+    if (nutritionDateViewportWidth <= 0) {
+      return;
+    }
+
+    const selectedIndex = getDateDistance(windowStartDate, targetDate);
+
+    if (selectedIndex < 0 || selectedIndex >= NUTRITION_DATE_WINDOW_SIZE) {
+      return;
+    }
+
+    const centeredOffset = selectedIndex * NUTRITION_DATE_ITEM_WIDTH;
+
+    nutritionListRef.current?.scrollToOffset({ offset: centeredOffset, animated });
+  };
+
   useEffect(() => {
     if (nutritionDateViewportWidth <= 0) {
       return;
     }
 
-    const nextWindowStart = getNutritionWindowStart(selectedDate);
-    if (selectedDate < nutritionWindowStartDate || selectedDate > addDays(nutritionWindowStartDate, NUTRITION_DATE_WINDOW_SIZE - 1)) {
+    const windowEndDate = addDays(nutritionWindowStartDate, NUTRITION_DATE_WINDOW_SIZE - 1);
+    const selectedDateIsOutsideWindow = selectedDate < nutritionWindowStartDate || selectedDate > windowEndDate;
+
+    if (selectedDateIsOutsideWindow) {
+      const nextWindowStart = getNutritionWindowStart(selectedDate);
+      shouldCenterNutritionDateRef.current = true;
       setNutritionWindowStartDate(nextWindowStart);
       return;
     }
 
-    const targetDate = pendingNutritionCenterDate.current ?? selectedDate;
+    const pendingCenterDate = pendingNutritionCenterDate.current;
+    const targetDate = pendingCenterDate ?? selectedDate;
     pendingNutritionCenterDate.current = null;
-    const selectedIndex = getDateDistance(nutritionWindowStartDate, targetDate);
+    const shouldCenterDate = shouldCenterNutritionDateRef.current || pendingCenterDate !== null;
+    const shouldAnimateCenter = shouldAnimateNutritionCenterRef.current;
+    shouldCenterNutritionDateRef.current = false;
+    shouldAnimateNutritionCenterRef.current = false;
+
+    if (!shouldCenterDate) {
+      return;
+    }
+
     const scrollTimer = setTimeout(() => {
-      if (selectedIndex >= 0) {
-        const centeredOffset = Math.max(
-          0,
-          selectedIndex * NUTRITION_DATE_ITEM_WIDTH - (nutritionDateViewportWidth - NUTRITION_DATE_CARD_WIDTH) / 2,
-        );
-        nutritionListRef.current?.scrollToOffset({ offset: centeredOffset, animated: false });
-      }
+      centerNutritionDate(targetDate, shouldAnimateCenter);
       setVisibleNutritionMonthDate(getMonthStartISO(targetDate));
     }, 0);
 
@@ -113,10 +138,10 @@ export function NutritionScreen({
     setVisibleNutritionMonthDate((currentMonth) => (currentMonth === nextMonth ? currentMonth : nextMonth));
   }).current;
 
-  const updateVisibleNutritionMonthFromScroll = (scrollX: number, viewportWidth: number) => {
+  const updateVisibleNutritionMonthFromScroll = (scrollX: number) => {
     const centerIndex = Math.min(
       weekDays.length - 1,
-      Math.max(0, Math.round((scrollX + viewportWidth / 2) / NUTRITION_DATE_ITEM_WIDTH)),
+      Math.max(0, Math.round(scrollX / NUTRITION_DATE_ITEM_WIDTH)),
     );
     const centerDate = weekDays[centerIndex]?.dateString;
 
@@ -128,24 +153,12 @@ export function NutritionScreen({
     setVisibleNutritionMonthDate((currentMonth) => (currentMonth === nextMonth ? currentMonth : nextMonth));
   };
 
-  const shiftNutritionWindowIfNeeded = (scrollX: number, viewportWidth: number) => {
-    const centerIndex = Math.round((scrollX + viewportWidth / 2) / NUTRITION_DATE_ITEM_WIDTH);
-    const centerDate = weekDays[Math.min(weekDays.length - 1, Math.max(0, centerIndex))]?.dateString;
+  const clampNutritionDateScrollOffset = (scrollX: number) => {
+    const maxOffset = Math.max(0, (weekDays.length - 1) * NUTRITION_DATE_ITEM_WIDTH);
+    const clampedOffset = Math.min(Math.max(scrollX, 0), maxOffset);
 
-    if (!centerDate) {
-      return;
-    }
-
-    if (centerIndex < 12 || centerIndex > NUTRITION_DATE_WINDOW_SIZE - 13) {
-      setNutritionWindowStartDate((currentStart) => {
-        const nextStart = getNutritionWindowStart(centerDate);
-
-        if (nextStart !== currentStart) {
-          pendingNutritionCenterDate.current = centerDate;
-        }
-
-        return nextStart === currentStart ? currentStart : nextStart;
-      });
+    if (Math.abs(clampedOffset - scrollX) > 1) {
+      nutritionListRef.current?.scrollToOffset({ offset: clampedOffset, animated: true });
     }
   };
 
@@ -157,9 +170,9 @@ export function NutritionScreen({
         pointerEvents="box-none"
         style={styles.nutritionFixedHeader}
       >
-        <View style={styles.nutritionHeader}>
+        <View style={[styles.screenHeaderRow, styles.nutritionHeader]}>
           <Text style={[styles.nutritionTitle, { color: activeTheme.titleText }]}>Nutrition</Text>
-          <View style={styles.nutritionHeaderActions}>
+          <View style={[styles.screenHeaderActions, styles.nutritionHeaderActions]}>
             <View
               style={[
                 styles.streakPill,
@@ -173,7 +186,7 @@ export function NutritionScreen({
               <Ionicons name="flame" size={20} color={accent} />
               <Text style={[styles.streakText, { color: activeTheme.titleText }]}>{streak} day streak</Text>
             </View>
-            <TouchableOpacity activeOpacity={0.82} onPress={onAddMeal} style={styles.nutritionAddButton}>
+            <TouchableOpacity activeOpacity={0.82} onPress={onAddMeal} style={styles.topActionButton}>
               <Ionicons name="add" size={25} color="#111111" />
             </TouchableOpacity>
           </View>
@@ -194,16 +207,18 @@ export function NutritionScreen({
             onPress={() => {
               const today = getTodayISO();
               const todayWindowStart = getNutritionWindowStart(today);
-              const todayIndex = getDateDistance(todayWindowStart, today);
+              const shouldCenterImmediately = today === selectedDate && todayWindowStart === nutritionWindowStartDate;
+              shouldCenterNutritionDateRef.current = true;
+              shouldAnimateNutritionCenterRef.current = true;
               setNutritionWindowStartDate(todayWindowStart);
               onSelectDate(today);
               setVisibleNutritionMonthDate(getMonthStartISO(today));
-              if (nutritionDateViewportWidth > 0) {
-                const centeredOffset = Math.max(
-                  0,
-                  todayIndex * NUTRITION_DATE_ITEM_WIDTH - (nutritionDateViewportWidth - NUTRITION_DATE_CARD_WIDTH) / 2,
-                );
-                requestAnimationFrame(() => nutritionListRef.current?.scrollToOffset({ offset: centeredOffset, animated: true }));
+              if (shouldCenterImmediately) {
+                requestAnimationFrame(() => {
+                  centerNutritionDate(today, true, todayWindowStart);
+                  shouldCenterNutritionDateRef.current = false;
+                  shouldAnimateNutritionCenterRef.current = false;
+                });
               }
             }}
             style={[
@@ -228,6 +243,9 @@ export function NutritionScreen({
             data={weekDays}
             keyExtractor={(day) => day.dateString}
             showsHorizontalScrollIndicator={false}
+            bounces={false}
+            alwaysBounceHorizontal={false}
+            overScrollMode="never"
             style={styles.nutritionWeekScroll}
             contentContainerStyle={[
               styles.nutritionWeekRow,
@@ -246,13 +264,13 @@ export function NutritionScreen({
               index,
             })}
             onScroll={(event) => {
-              updateVisibleNutritionMonthFromScroll(event.nativeEvent.contentOffset.x, event.nativeEvent.layoutMeasurement.width);
+              updateVisibleNutritionMonthFromScroll(event.nativeEvent.contentOffset.x);
             }}
             onMomentumScrollEnd={(event) => {
-              shiftNutritionWindowIfNeeded(event.nativeEvent.contentOffset.x, event.nativeEvent.layoutMeasurement.width);
+              clampNutritionDateScrollOffset(event.nativeEvent.contentOffset.x);
             }}
             onScrollEndDrag={(event) => {
-              shiftNutritionWindowIfNeeded(event.nativeEvent.contentOffset.x, event.nativeEvent.layoutMeasurement.width);
+              clampNutritionDateScrollOffset(event.nativeEvent.contentOffset.x);
             }}
             scrollEventThrottle={64}
             onViewableItemsChanged={viewableNutritionDates}

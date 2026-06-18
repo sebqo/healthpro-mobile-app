@@ -449,7 +449,7 @@ export function ActivityEditorModal({
               </View>
             )}
 
-            <View style={[styles.activityFormRow, styles.formDivider, { borderTopColor: activeTheme.divider }]}>
+            <View style={[styles.activityFormRow, styles.formDivider, { paddingTop: 5, paddingBottom: 7, borderTopColor: activeTheme.divider }]}>
               <Text style={[styles.formRowLabel, { color: customColorsExpanded ? accent : activeTheme.titleText }]}>
                 Color
               </Text>

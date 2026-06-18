@@ -21,14 +21,24 @@ export const styles = StyleSheet.create({
   },
   homeContent: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 58,
+    paddingHorizontal: 27,
+    paddingTop: 68,
     paddingBottom: 122,
   },
-  homeHeader: {
+  screenHeaderRow: {
+    minHeight: 44,
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  },
+  screenHeaderActions: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  homeHeader: {
   },
   homeTitleBlock: {
     flex: 1,
@@ -42,9 +52,6 @@ export const styles = StyleSheet.create({
     opacity: 0.46,
   },
   homeHeaderActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
   },
   themeButton: {
     width: 42,
@@ -55,10 +62,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
   },
   homeActionButton: {
-    width: 51,
-    height: 51,
-    marginTop: -1,
-    borderRadius: 26,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -66,6 +72,26 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 18,
     elevation: 7,
+  },
+  topActionButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: accent,
+    shadowColor: accent,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.28,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  topActionNeutralButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   activityCards: {
     flex: 1,
@@ -243,36 +269,38 @@ export const styles = StyleSheet.create({
   },
   statTrack: {
     height: 4,
-    marginTop: 11,
-    borderRadius: 3,
-    overflow: 'hidden',
+    marginTop: 7,
+    borderRadius: 4,
+    overflow: 'visible',
   },
   statFill: {
     height: '100%',
     borderRadius: 3,
     backgroundColor: accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 10,
   },
   calendarContent: {
     flex: 1,
-    paddingTop: 72,
-    paddingHorizontal: 28,
+    paddingTop: 68,
+    paddingHorizontal: 27,
     paddingBottom: 130,
   },
   calendarTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    position: 'relative',
   },
   monthRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: 204,
+    width: 194,
     flexShrink: 0,
   },
   monthTitle: {
-    width: 116,
-    marginHorizontal: 8,
+    width: 110,
+    marginHorizontal: 6,
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
@@ -288,10 +316,14 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   calendarActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginLeft: 10,
+    marginLeft: 6,
+    paddingRight: 52,
+    transform: [{ translateX: -2 }],
+  },
+  calendarFixedAddButton: {
+    position: 'absolute',
+    top: 0,
+    right: -2,
   },
   todayButton: {
     height: 36,
@@ -312,14 +344,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  addButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#e5f5b4',
   },
   weekHeader: {
     marginTop: 36,
@@ -653,10 +677,6 @@ export const styles = StyleSheet.create({
     paddingBottom: 172,
   },
   nutritionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 14,
   },
   nutritionTitle: {
     flex: 1,
@@ -666,9 +686,6 @@ export const styles = StyleSheet.create({
     opacity: 0.84,
   },
   nutritionHeaderActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
   },
   nutritionDateHeader: {
     marginTop: 6,
@@ -700,19 +717,6 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     opacity: 0.78,
-  },
-  nutritionAddButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: accent,
-    shadowColor: accent,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.28,
-    shadowRadius: 18,
-    elevation: 8,
   },
   nutritionWeekRow: {
     paddingHorizontal: 1,
@@ -969,9 +973,6 @@ export const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   profileTitle: {
     fontSize: 38,
@@ -979,11 +980,6 @@ export const styles = StyleSheet.create({
     lineHeight: 46,
   },
   profileAvatar: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   profileCard: {
     marginTop: 28,
@@ -1426,11 +1422,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    gap: 7,
+    gap: 6,
   },
   colorSelectorWrap: {
     maxWidth: 188,
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   colorButton: {
     width: 27,
@@ -1480,17 +1476,18 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ffa43b',
   },
   expandedColorPalette: {
-    width: 126,
+    width: 122,
     marginTop: 8,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignSelf: 'center',
     gap: 6,
   },
   paletteColorButton: {
     width: 26,
-    height: 26,
-    borderRadius: 13,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -1744,6 +1741,8 @@ export const styles = StyleSheet.create({
   tabButton: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    position: 'relative',
   },
   tabButtonBeforeQr: {
     marginRight: 24,

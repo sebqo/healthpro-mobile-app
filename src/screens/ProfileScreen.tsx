@@ -25,10 +25,10 @@ export function ProfileScreen({
 }) {
   return (
     <LinearGradient colors={activeTheme.homeGradient} locations={[0, 0.52, 1]} style={styles.profileContent}>
-      <View style={styles.profileHeader}>
+      <View style={[styles.screenHeaderRow, styles.profileHeader]}>
         <Text style={[styles.profileTitle, { color: activeTheme.titleText }]}>Profile</Text>
-        <View style={[styles.profileAvatar, { backgroundColor: activeTheme.statIconBg }]}>
-          <Ionicons name="person" size={30} color={accent} />
+        <View style={[styles.topActionNeutralButton, styles.profileAvatar, { backgroundColor: activeTheme.statIconBg }]}>
+          <Ionicons name="person" size={34} color={accent} />
         </View>
       </View>
 

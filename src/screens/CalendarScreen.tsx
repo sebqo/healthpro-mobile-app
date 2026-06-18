@@ -82,7 +82,7 @@ export function CalendarScreen({
 
   return (
     <View style={[styles.calendarContent, { backgroundColor: activeTheme.calendarBg }]}>
-      <View style={styles.calendarTop}>
+      <View style={[styles.screenHeaderRow, styles.calendarTop]}>
         <View style={styles.monthRow}>
           <TouchableOpacity
             activeOpacity={0.78}
@@ -107,7 +107,7 @@ export function CalendarScreen({
             <Ionicons name="chevron-forward" size={18} color={activeTheme.titleText} />
           </TouchableOpacity>
         </View>
-        <View style={styles.calendarActions}>
+        <View style={[styles.screenHeaderActions, styles.calendarActions]}>
           <TouchableOpacity
             activeOpacity={0.78}
             onPress={onGoToToday}
@@ -138,7 +138,11 @@ export function CalendarScreen({
               color={activeTheme.iconButtonColor}
             />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.82} onPress={onNewActivity} style={styles.addButton}>
+          <TouchableOpacity
+            activeOpacity={0.82}
+            onPress={onNewActivity}
+            style={[styles.topActionButton, styles.calendarFixedAddButton]}
+          >
             <Ionicons name="add" size={25} color="#111111" />
           </TouchableOpacity>
         </View>
