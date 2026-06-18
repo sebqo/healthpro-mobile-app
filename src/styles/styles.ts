@@ -8,6 +8,8 @@ import {
   TIMELINE_WIDTH,
 } from '../constants/layout';
 
+const TAB_QR_BUTTON_SIZE = 64;
+
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -292,38 +294,32 @@ export const styles = StyleSheet.create({
     position: 'relative',
   },
   monthRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: 194,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 178,
+    height: 44,
+    justifyContent: 'center',
     flexShrink: 0,
   },
   monthTitle: {
-    width: 110,
-    marginHorizontal: 6,
-    textAlign: 'center',
+    width: '100%',
+    textAlign: 'left',
     fontSize: 18,
     fontWeight: '600',
     lineHeight: 26,
     letterSpacing: 0,
     opacity: 0.82,
   },
-  monthNavButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   calendarActions: {
-    marginLeft: 6,
-    paddingRight: 52,
-    transform: [{ translateX: -2 }],
-  },
-  calendarFixedAddButton: {
     position: 'absolute',
     top: 0,
-    right: -2,
+    right: 54,
+  },
+  calendarHeaderAddButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
   todayButton: {
     height: 36,
@@ -338,9 +334,9 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
   },
   filterButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -357,6 +353,9 @@ export const styles = StyleSheet.create({
   },
   calendarGrid: {
     marginTop: 24,
+  },
+  calendarSwipeZone: {
+    width: '100%',
   },
   weekModeRow: {
     marginTop: 17,
@@ -1736,7 +1735,7 @@ export const styles = StyleSheet.create({
   tabBarWithQr: {
     left: 20,
     right: 20,
-    paddingHorizontal: 14,
+    paddingHorizontal: 18,
   },
   tabButton: {
     flex: 1,
@@ -1745,18 +1744,23 @@ export const styles = StyleSheet.create({
     position: 'relative',
   },
   tabButtonBeforeQr: {
-    marginRight: 24,
+    marginRight: TAB_QR_BUTTON_SIZE / 2,
   },
   tabButtonAfterQr: {
-    marginLeft: 24,
+    marginLeft: TAB_QR_BUTTON_SIZE / 2,
+  },
+  tabQrCenterWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: -20,
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 20,
   },
   tabQrButton: {
-    position: 'absolute',
-    left: '50%',
-    top: -20,
-    width: 64,
-    height: 64,
-    marginLeft: -32,
+    width: TAB_QR_BUTTON_SIZE,
+    height: TAB_QR_BUTTON_SIZE,
     borderRadius: 32,
     borderWidth: 1.5,
     alignItems: 'center',
@@ -1771,14 +1775,5 @@ export const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
     lineHeight: 16,
-  },
-  homeIndicator: {
-    position: 'absolute',
-    bottom: 8,
-    left: '50%',
-    width: 118,
-    height: 5,
-    marginLeft: -59,
-    borderRadius: 3,
   },
 });

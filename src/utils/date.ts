@@ -1,5 +1,5 @@
 import type { CalendarDay } from '../types';
-import { NUTRITION_DATE_WINDOW_SIZE } from '../constants/layout';
+import { NUTRITION_DATE_PAST_WINDOW_DAYS, NUTRITION_DATE_WINDOW_SIZE } from '../constants/layout';
 
 export const pad2 = (value: number) => String(value).padStart(2, '0');
 export const toLocalISODate = (date: Date) =>
@@ -114,7 +114,7 @@ export const getWeekDays = (dateString: string): CalendarDay[] => {
     };
   });
 };
-export const getNutritionRangeStart = () => addDays(getTodayISO(), -365);
+export const getNutritionRangeStart = () => addDays(getTodayISO(), -425);
 export const getNutritionRangeEnd = () => addDays(getTodayISO(), 365);
 export const clampNutritionDate = (dateString: string) => {
   const rangeStart = getNutritionRangeStart();
@@ -134,7 +134,7 @@ export const getNutritionWindowStart = (centerDate: string) => {
   const rangeStart = getNutritionRangeStart();
   const rangeEnd = getNutritionRangeEnd();
   const latestStart = addDays(rangeEnd, -(NUTRITION_DATE_WINDOW_SIZE - 1));
-  const desiredStart = addDays(clampNutritionDate(centerDate), -Math.floor(NUTRITION_DATE_WINDOW_SIZE / 2));
+  const desiredStart = addDays(clampNutritionDate(centerDate), -NUTRITION_DATE_PAST_WINDOW_DAYS);
 
   if (desiredStart < rangeStart) {
     return rangeStart;
@@ -147,9 +147,8 @@ export const getNutritionWindowStart = (centerDate: string) => {
   return desiredStart;
 };
 export const getNutritionWeekDays = (windowStartDate: string, selectedNutritionDate: string) => {
-  const today = getTodayISO();
-  const rangeStart = addDays(today, -365);
-  const rangeEnd = addDays(today, 365);
+  const rangeStart = getNutritionRangeStart();
+  const rangeEnd = getNutritionRangeEnd();
   const totalDays = Math.min(
     NUTRITION_DATE_WINDOW_SIZE,
     Math.max(0, getDateDistance(windowStartDate, rangeEnd) + 1),

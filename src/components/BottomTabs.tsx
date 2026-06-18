@@ -66,23 +66,24 @@ export function BottomTabs({
         );
       })}
       {showQrButton && (
-        <TouchableOpacity
-          activeOpacity={0.82}
-          onPress={onQrPress}
-          style={[
-            styles.tabQrButton,
-            {
-              backgroundColor: activeTheme.mode === 'dark' ? 'rgba(31,33,35,0.94)' : 'rgba(255,255,255,0.96)',
-              borderColor: accent,
-              shadowColor: accent,
-              shadowOpacity: dark ? 0.5 : 0.24,
-            },
-          ]}
-        >
-          <Ionicons name="qr-code-outline" size={28} color={activeTheme.mode === 'dark' ? '#ffffff' : '#111111'} />
-        </TouchableOpacity>
+        <View pointerEvents="box-none" style={styles.tabQrCenterWrap}>
+          <TouchableOpacity
+            activeOpacity={0.82}
+            onPress={onQrPress}
+            style={[
+              styles.tabQrButton,
+              {
+                backgroundColor: dark ? 'rgba(31,33,35,0.94)' : 'rgba(255,255,255,0.96)',
+                borderColor: accent,
+                shadowColor: accent,
+                shadowOpacity: dark ? 0.5 : 0.24,
+              },
+            ]}
+          >
+            <Ionicons name="qr-code-outline" size={28} color={dark ? '#ffffff' : '#111111'} />
+          </TouchableOpacity>
+        </View>
       )}
-      <View style={[styles.homeIndicator, { backgroundColor: activeTheme.homeIndicator }]} />
     </View>
   );
 }

@@ -139,6 +139,10 @@ export function NutritionScreen({
   }).current;
 
   const updateVisibleNutritionMonthFromScroll = (scrollX: number) => {
+    if (weekDays.length === 0) {
+      return;
+    }
+
     const centerIndex = Math.min(
       weekDays.length - 1,
       Math.max(0, Math.round(scrollX / NUTRITION_DATE_ITEM_WIDTH)),
@@ -154,7 +158,7 @@ export function NutritionScreen({
   };
 
   const clampNutritionDateScrollOffset = (scrollX: number) => {
-    const maxOffset = Math.max(0, (weekDays.length - 1) * NUTRITION_DATE_ITEM_WIDTH);
+    const maxOffset = Math.max(0, weekDays.length * NUTRITION_DATE_ITEM_WIDTH - nutritionDateViewportWidth);
     const clampedOffset = Math.min(Math.max(scrollX, 0), maxOffset);
 
     if (Math.abs(clampedOffset - scrollX) > 1) {
@@ -247,13 +251,7 @@ export function NutritionScreen({
             alwaysBounceHorizontal={false}
             overScrollMode="never"
             style={styles.nutritionWeekScroll}
-            contentContainerStyle={[
-              styles.nutritionWeekRow,
-              nutritionDateViewportWidth > 0 && {
-                paddingLeft: Math.max(0, (nutritionDateViewportWidth - NUTRITION_DATE_CARD_WIDTH) / 2),
-                paddingRight: Math.max(24, (nutritionDateViewportWidth - NUTRITION_DATE_CARD_WIDTH) / 2),
-              },
-            ]}
+            contentContainerStyle={styles.nutritionWeekRow}
             initialNumToRender={21}
             windowSize={5}
             maxToRenderPerBatch={21}

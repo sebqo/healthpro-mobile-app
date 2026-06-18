@@ -1,18 +1,38 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FlatList, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, PanResponder, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { styles } from '../styles/styles';
 import { accent, activityColorPalette, carbsColor, fatColor, proteinColor } from '../constants/colors';
 import { CARD_HEIGHT, HOUR_WIDTH, LANE_GAP, MAX_WEEK_ZOOM, MIN_WEEK_ZOOM, NUTRITION_DATE_CARD_WIDTH, NUTRITION_DATE_ITEM_WIDTH, NUTRITION_FIXED_HEADER_HEIGHT, TIMELINE_VIEWPORT_HEIGHT, TIMELINE_WIDTH } from '../constants/layout';
 import { nutritionGoals } from '../constants/nutrition';
 import type { Activity, ActivityDraft, ActivityModalMode, ActivityViewMode, CalorieStep, CalendarDay, EditableStatKey, EditingDateTarget, EditingTimeTarget, Meal, NutritionTotals, RepeatOption, SleepStep, Stat, TabKey, Theme } from '../types';
-import { addDays, addMonths, formatDateChip, getAgendaTitle, getCalendarDays, getDateDistance, getMondayWeekdayIndex, getMonthStartISO, getMonthTitle, getNutritionDateHeading, getNutritionWeekDays, getNutritionWindowStart, getTodayISO, getWeekDays, getWeekStartISO, isToday } from '../utils/date';
+import { addDays, addMonths, formatDateChip, getAgendaTitle, getCalendarDays, getDateDistance, getMondayWeekdayIndex, getMonthStartISO, getNutritionDateHeading, getNutritionWeekDays, getNutritionWindowStart, getTodayISO, getWeekDays, getWeekStartISO, isToday } from '../utils/date';
 import { adjustTime, buildTime, formatMealTime, formatTimeFromMinutes, getCurrentLocalMinutes, getTimeParts, normalizeTimePart, safeParseMinutes } from '../utils/time';
 import { buildTimelineItems, formatActivityTime, getActivitiesForDate, getRemainingTodayActivities, normalizeActivityDraft } from '../utils/activities';
 import { clampMacroInput, getMealStreak, getMealsForDate, getNutritionTotals, hasMealsForDate } from '../utils/nutrition';
 import { formatCalories, formatHydration, hexToRgba } from '../utils/formatting';
 
 import { WeekTimeline } from '../components/WeekTimeline';
+
+const getFullCalendarTitle = (dateString: string) => {
+  const [year, month] = dateString.split('-').map(Number);
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  return `${monthNames[month - 1]} ${year}`;
+};
 
 export function CalendarScreen({
   activeTheme,
@@ -48,7 +68,8 @@ export function CalendarScreen({
   const calendarDays = getCalendarDays(visibleMonthDate, selectedDate);
   const calendarWeekRows = Array.from({ length: 5 }, (_, index) => calendarDays.slice(index * 7, index * 7 + 7));
   const weekDays = getWeekDays(selectedDate);
-  const calendarTitle = activityViewMode === 'week' ? getMonthTitle(selectedDate) : getMonthTitle(visibleMonthDate);
+  const titleDate = activityViewMode === 'week' ? selectedDate : visibleMonthDate;
+  const calendarTitle = getFullCalendarTitle(titleDate);
 
   const selectCalendarDate = (dateString: string, isCurrentMonth: boolean) => {
     onSelectDate(dateString);
@@ -80,17 +101,39 @@ export function CalendarScreen({
     onChangeVisibleMonthDate(addMonths(visibleMonthDate, 1));
   };
 
+  const calendarSwipeResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (_, gesture) => {
+      const absDx = Math.abs(gesture.dx);
+      const absDy = Math.abs(gesture.dy);
+
+      return absDx > 18 && absDx > absDy * 1.4;
+    },
+    onPanResponderRelease: (_, gesture) => {
+      const absDx = Math.abs(gesture.dx);
+      const absDy = Math.abs(gesture.dy);
+
+      if (absDx < 55) {
+        return;
+      }
+
+      if (absDx < absDy * 1.4) {
+        return;
+      }
+
+      if (gesture.dx < 0) {
+        moveCalendarForward();
+        return;
+      }
+
+      moveCalendarBackward();
+    },
+  });
+
   return (
     <View style={[styles.calendarContent, { backgroundColor: activeTheme.calendarBg }]}>
       <View style={[styles.screenHeaderRow, styles.calendarTop]}>
         <View style={styles.monthRow}>
-          <TouchableOpacity
-            activeOpacity={0.78}
-            onPress={moveCalendarBackward}
-            style={[styles.monthNavButton, { backgroundColor: activeTheme.iconButtonBg }]}
-          >
-            <Ionicons name="chevron-back" size={18} color={activeTheme.titleText} />
-          </TouchableOpacity>
           <Text
             numberOfLines={1}
             adjustsFontSizeToFit
@@ -99,13 +142,6 @@ export function CalendarScreen({
           >
             {calendarTitle}
           </Text>
-          <TouchableOpacity
-            activeOpacity={0.78}
-            onPress={moveCalendarForward}
-            style={[styles.monthNavButton, { backgroundColor: activeTheme.iconButtonBg }]}
-          >
-            <Ionicons name="chevron-forward" size={18} color={activeTheme.titleText} />
-          </TouchableOpacity>
         </View>
         <View style={[styles.screenHeaderActions, styles.calendarActions]}>
           <TouchableOpacity
@@ -138,76 +174,78 @@ export function CalendarScreen({
               color={activeTheme.iconButtonColor}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.82}
-            onPress={onNewActivity}
-            style={[styles.topActionButton, styles.calendarFixedAddButton]}
-          >
-            <Ionicons name="add" size={25} color="#111111" />
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          activeOpacity={0.82}
+          onPress={onNewActivity}
+          style={[styles.topActionButton, styles.calendarHeaderAddButton]}
+        >
+          <Ionicons name="add" size={25} color="#111111" />
+        </TouchableOpacity>
       </View>
 
       {activityViewMode === 'month' ? (
         <>
-          <View style={styles.weekHeader}>
-            {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day) => (
-              <Text key={day} style={[styles.weekday, { color: activeTheme.secondaryText }]}>
-                {day}
-              </Text>
-            ))}
-          </View>
+          <View style={styles.calendarSwipeZone} {...calendarSwipeResponder.panHandlers}>
+            <View style={styles.weekHeader}>
+              {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day) => (
+                <Text key={day} style={[styles.weekday, { color: activeTheme.secondaryText }]}>
+                  {day}
+                </Text>
+              ))}
+            </View>
 
-          <View style={styles.calendarGrid}>
-            {calendarWeekRows.map((week, weekIndex) => (
-              <View key={`${weekIndex}`} style={styles.calendarWeek}>
-                {week.map((day) => {
-                  const hasDayActivities = getActivitiesForDate(activities, day.dateString).length > 0;
+            <View style={styles.calendarGrid}>
+              {calendarWeekRows.map((week, weekIndex) => (
+                <View key={`${weekIndex}`} style={styles.calendarWeek}>
+                  {week.map((day) => {
+                    const hasDayActivities = getActivitiesForDate(activities, day.dateString).length > 0;
 
-                  return (
-                    <TouchableOpacity
-                      key={day.dateString}
-                      activeOpacity={0.78}
-                      onPress={() => selectCalendarDate(day.dateString, day.isCurrentMonth)}
-                      style={styles.dayCell}
-                    >
-                      <View
-                        style={[
-                          styles.datePill,
-                          day.isToday && !day.isSelected && styles.todayDatePill,
-                          day.isSelected && styles.datePillSelected,
-                        ]}
+                    return (
+                      <TouchableOpacity
+                        key={day.dateString}
+                        activeOpacity={0.78}
+                        onPress={() => selectCalendarDate(day.dateString, day.isCurrentMonth)}
+                        style={styles.dayCell}
                       >
-                        <Text
+                        <View
                           style={[
-                            styles.dateText,
-                            { color: activeTheme.mode === 'dark' ? 'rgba(251,251,248,0.62)' : 'rgba(17,17,17,0.58)' },
-                            day.isWeekend && day.isCurrentMonth && styles.weekendDate,
-                            !day.isCurrentMonth && {
-                              color: activeTheme.mode === 'dark' ? 'rgba(155,156,158,0.38)' : 'rgba(126,127,129,0.42)',
-                            },
-                            day.isSelected && styles.selectedDate,
+                            styles.datePill,
+                            day.isToday && !day.isSelected && styles.todayDatePill,
+                            day.isSelected && styles.datePillSelected,
                           ]}
                         >
-                          {day.dayNumber}
-                        </Text>
-                        {hasDayActivities && (
-                          <View
+                          <Text
                             style={[
-                              styles.dateActivityDot,
-                              {
-                                backgroundColor: day.isSelected ? 'rgba(16,16,16,0.2)' : accent,
-                                opacity: day.isSelected ? 0.22 : 0.14,
+                              styles.dateText,
+                              { color: activeTheme.mode === 'dark' ? 'rgba(251,251,248,0.62)' : 'rgba(17,17,17,0.58)' },
+                              day.isWeekend && day.isCurrentMonth && styles.weekendDate,
+                              !day.isCurrentMonth && {
+                                color: activeTheme.mode === 'dark' ? 'rgba(155,156,158,0.38)' : 'rgba(126,127,129,0.42)',
                               },
+                              day.isSelected && styles.selectedDate,
                             ]}
-                          />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            ))}
+                          >
+                            {day.dayNumber}
+                          </Text>
+                          {hasDayActivities && (
+                            <View
+                              style={[
+                                styles.dateActivityDot,
+                                {
+                                  backgroundColor: day.isSelected ? 'rgba(16,16,16,0.2)' : accent,
+                                  opacity: day.isSelected ? 0.22 : 0.14,
+                                },
+                              ]}
+                            />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
           </View>
 
           <ScrollView
@@ -269,64 +307,66 @@ export function CalendarScreen({
         </>
       ) : (
         <>
-          <View style={styles.weekModeRow}>
-            {weekDays.map((day) => {
-              const hasDayActivities = getActivitiesForDate(activities, day.dateString).length > 0;
+          <View style={styles.calendarSwipeZone} {...calendarSwipeResponder.panHandlers}>
+            <View style={styles.weekModeRow}>
+              {weekDays.map((day) => {
+                const hasDayActivities = getActivitiesForDate(activities, day.dateString).length > 0;
 
-              return (
-                <TouchableOpacity
-                  key={day.dateString}
-                  activeOpacity={0.82}
-                  onPress={() => {
-                    onSelectDate(day.dateString);
-                    onChangeVisibleMonthDate(getMonthStartISO(day.dateString));
-                  }}
-                  style={[
-                    styles.weekDayCard,
-                    {
-                      backgroundColor: day.isSelected
-                        ? accent
-                        : activeTheme.mode === 'dark'
-                          ? 'rgba(255,255,255,0.045)'
-                          : '#ffffff',
-                      borderColor: day.isToday ? 'rgba(184,239,47,0.58)' : activeTheme.cardBorder,
-                      shadowColor: activeTheme.shadowColor,
-                    },
-                  ]}
-                >
-                  <Text
+                return (
+                  <TouchableOpacity
+                    key={day.dateString}
+                    activeOpacity={0.82}
+                    onPress={() => {
+                      onSelectDate(day.dateString);
+                      onChangeVisibleMonthDate(getMonthStartISO(day.dateString));
+                    }}
                     style={[
-                      styles.weekDayLabel,
-                      { color: day.isSelected ? '#111111' : activeTheme.secondaryText },
+                      styles.weekDayCard,
+                      {
+                        backgroundColor: day.isSelected
+                          ? accent
+                          : activeTheme.mode === 'dark'
+                            ? 'rgba(255,255,255,0.045)'
+                            : '#ffffff',
+                        borderColor: day.isToday ? 'rgba(184,239,47,0.58)' : activeTheme.cardBorder,
+                        shadowColor: activeTheme.shadowColor,
+                      },
                     ]}
                   >
-                    {weekdayLabels[getMondayWeekdayIndex(day.dateString)]}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.weekDayNumber,
-                      { color: day.isSelected ? '#111111' : activeTheme.titleText },
-                      day.isWeekend && !day.isSelected && styles.weekendDate,
-                    ]}
-                  >
-                    {day.dayNumber}
-                  </Text>
-                  <View style={styles.weekDotRow}>
-                    {hasDayActivities && (
-                      <View
-                        style={[
-                          styles.weekActivityDot,
-                          {
-                            backgroundColor: day.isSelected ? '#111111' : accent,
-                            opacity: day.isSelected ? 0.22 : 0.14,
-                          },
-                        ]}
-                      />
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+                    <Text
+                      style={[
+                        styles.weekDayLabel,
+                        { color: day.isSelected ? '#111111' : activeTheme.secondaryText },
+                      ]}
+                    >
+                      {weekdayLabels[getMondayWeekdayIndex(day.dateString)]}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.weekDayNumber,
+                        { color: day.isSelected ? '#111111' : activeTheme.titleText },
+                        day.isWeekend && !day.isSelected && styles.weekendDate,
+                      ]}
+                    >
+                      {day.dayNumber}
+                    </Text>
+                    <View style={styles.weekDotRow}>
+                      {hasDayActivities && (
+                        <View
+                          style={[
+                            styles.weekActivityDot,
+                            {
+                              backgroundColor: day.isSelected ? '#111111' : accent,
+                              opacity: day.isSelected ? 0.22 : 0.14,
+                            },
+                          ]}
+                        />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
           <WeekTimeline

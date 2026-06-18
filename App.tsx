@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 import { BottomTabs } from './src/components/BottomTabs';
@@ -120,7 +120,7 @@ export default function App() {
           : '';
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: activeTheme.safeAreaBg }]}>
+    <View style={[styles.safeArea, { backgroundColor: activeTheme.phoneBg }]}>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       <View style={[styles.phoneFrame, { backgroundColor: activeTheme.phoneBg }]}>
         {activeTab === 'Activity' ? (
@@ -279,6 +279,6 @@ export default function App() {
         visible={scannerPlaceholderVisible}
         onClose={() => setScannerPlaceholderVisible(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 }
