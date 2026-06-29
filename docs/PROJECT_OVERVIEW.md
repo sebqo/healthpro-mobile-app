@@ -2,9 +2,9 @@
 
 ## Product Vision
 
-HealthPro is an active portfolio build for a premium mobile health and productivity experience. It brings daily planning, activity tracking, nutrition awareness, scanner concepts, and an AI Coach interface concept into one polished Expo React Native app.
+HealthPro is an active product prototype for a premium mobile health and productivity experience. It brings daily planning, activity tracking, nutrition awareness, scanner concepts, and an AI Coach interface concept into one polished Expo React Native app.
 
-This project is not a final production release. It is prepared as an interview and CV showcase for product thinking, mobile UI design, and maintainable React Native implementation.
+This project is not a final production release. It is an active personal mobile app project focused on product thinking, mobile UI design, and maintainable React Native implementation.
 
 ## Main Screens
 
@@ -38,7 +38,7 @@ The project focuses on building a cohesive product experience, not only isolated
 
 ## Maintainability
 
-The project is structured as an active portfolio build, with modular screens, shared styling, and separated utilities so future versions can be updated or expanded without rebuilding the app from scratch.
+The project is structured as an active product prototype, with modular screens, shared styling, and separated utilities so future versions can be updated or expanded without rebuilding the app from scratch.
 
 The current structure supports future AI/backend integration, authentication, synced user profiles, refined navigation, and deeper nutrition scanner flows without requiring a full UI redesign.
 

@@ -4,7 +4,7 @@ A premium mobile health and productivity app built with Expo React Native.
 
 ## Overview
 
-HealthPro combines activity planning, nutrition tracking, macro visualization, scanner flow concepts, and an AI Coach interface concept in a polished mobile UI. The project is designed as a portfolio-grade mobile experience with a dark lime visual system, iOS polish, and web support through Expo.
+HealthPro combines activity planning, nutrition tracking, macro visualization, scanner flow concepts, and an AI Coach interface concept in a polished mobile UI. The project is designed as a personal mobile app project with a dark lime visual system, iOS polish, and web support through Expo.
 
 ## Features
 
@@ -73,13 +73,17 @@ npx tsc --noEmit
 - `src/constants` - theme values, layout constants, tabs, nutrition defaults, and sample data.
 - `src/utils` - separated utility logic for dates, activities, formatting, nutrition, and health target calculations.
 - `assets` - static app assets.
-- `docs/screenshots` - placeholder folder for portfolio screenshots.
+- `docs/screenshots` - placeholder folder for app screenshots.
 
 ## Maintainability
 
-The project is structured as an active portfolio build, with modular screens, shared styling, and separated utilities so future versions can be updated or expanded without rebuilding the app from scratch.
+The project is structured as an active product prototype, with modular screens, shared styling, and separated utilities so future versions can be updated or expanded without rebuilding the app from scratch.
 
 The screen-based structure makes individual app areas easier to update. Shared constants and styles help keep the visual system consistent across the experience. Utility functions are separated from UI where applicable, and future AI/backend features can be added without redesigning the current UI. The Expo React Native setup allows the app to evolve toward newer mobile versions over time.
+
+## Status
+
+Active personal project and product prototype.
 
 ## Future Improvements
 
@@ -94,4 +98,4 @@ The screen-based structure makes individual app areas easier to update. Shared c
 
 ## License
 
-All rights reserved. Portfolio project by Sebastian.
+All rights reserved. Personal project by Sebastian.
