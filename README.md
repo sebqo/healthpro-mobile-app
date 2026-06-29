@@ -81,10 +81,6 @@ The project is structured as an active portfolio build, with modular screens, sh
 
 The screen-based structure makes individual app areas easier to update. Shared constants and styles help keep the visual system consistent across the experience. Utility functions are separated from UI where applicable, and future AI/backend features can be added without redesigning the current UI. The Expo React Native setup allows the app to evolve toward newer mobile versions over time.
 
-## Status
-
-Active portfolio project prepared for interview and CV showcase.
-
 ## Future Improvements
 
 - Modernized v2 with refined navigation, backend services, and production-ready AI Coach
