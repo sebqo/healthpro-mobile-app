@@ -1,17 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { FlatList, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { styles } from '../styles/styles';
-import { accent, activityColorPalette, carbsColor, fatColor, proteinColor } from '../constants/colors';
-import { CARD_HEIGHT, HOUR_WIDTH, LANE_GAP, MAX_WEEK_ZOOM, MIN_WEEK_ZOOM, NUTRITION_DATE_CARD_WIDTH, NUTRITION_DATE_ITEM_WIDTH, NUTRITION_FIXED_HEADER_HEIGHT, TIMELINE_VIEWPORT_HEIGHT, TIMELINE_WIDTH } from '../constants/layout';
-import { nutritionGoals } from '../constants/nutrition';
-import type { Activity, ActivityDraft, ActivityModalMode, ActivityViewMode, CalorieStep, CalendarDay, EditableStatKey, EditingDateTarget, EditingTimeTarget, Meal, NutritionTotals, RepeatOption, SleepStep, Stat, TabKey, Theme } from '../types';
-import { addDays, addMonths, formatDateChip, getAgendaTitle, getCalendarDays, getDateDistance, getMonthStartISO, getMonthTitle, getNutritionDateHeading, getNutritionWeekDays, getNutritionWindowStart, getTodayISO, getWeekDays, getWeekStartISO, isToday } from '../utils/date';
-import { adjustTime, buildTime, formatMealTime, formatTimeFromMinutes, getCurrentLocalMinutes, getTimeParts, normalizeTimePart, safeParseMinutes } from '../utils/time';
-import { buildTimelineItems, formatActivityTime, getActivitiesForDate, getRemainingTodayActivities, normalizeActivityDraft } from '../utils/activities';
-import { clampMacroInput, getMealStreak, getMealsForDate, getNutritionTotals, hasMealsForDate } from '../utils/nutrition';
-import { formatCalories, formatHydration, hexToRgba } from '../utils/formatting';
-import type { IconName } from '../types';
+import type { IconName, Theme } from '../types';
 import { MacroGlyph } from './MacroGlyph';
 
 export function NutritionRing({
@@ -29,8 +20,14 @@ export function NutritionRing({
   glyph?: 'protein' | 'carbs' | 'fat';
   activeTheme: Theme;
 }) {
-  const clampedProgress = Math.min(Math.max(progress, 0), 1);
-  const arcRotation = `${Math.round(clampedProgress * 250) - 45}deg`;
+  const safeProgress = Number.isFinite(progress) ? progress : 0;
+  const clampedProgress = Math.min(Math.max(safeProgress, 0), 1);
+  const strokeWidth = Math.max(8, Math.round(size * 0.1));
+  const center = size / 2;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - clampedProgress);
+  const trackColor = activeTheme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(17,17,17,0.06)';
 
   return (
     <View
@@ -40,23 +37,33 @@ export function NutritionRing({
           width: size,
           height: size,
           borderRadius: size / 2,
-          borderColor: activeTheme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(17,17,17,0.06)',
         },
       ]}
     >
-      <View
-        style={[
-          styles.nutritionRingArc,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderTopColor: color,
-            borderRightColor: color,
-            transform: [{ rotate: arcRotation }],
-          },
-        ]}
-      />
+      <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke={trackColor}
+          fill="none"
+          strokeWidth={strokeWidth}
+        />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke={color}
+          fill="none"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          rotation="-90"
+          originX={center}
+          originY={center}
+        />
+      </Svg>
       <View
         style={[
           styles.nutritionRingCenter,

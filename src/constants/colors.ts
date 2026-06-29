@@ -12,3 +12,6 @@ export const activityColorPalette = [
 export const proteinColor = '#ff5268';
 export const carbsColor = '#ff8a1f';
 export const fatColor = '#f4c430';
+export const statusGood = '#8ee83f';
+export const statusWarning = '#f6c453';
+export const statusBad = '#ff6b6b';

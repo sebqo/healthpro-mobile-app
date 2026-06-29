@@ -21,6 +21,7 @@ export function MealEditorModal({
   onClose,
   onSave,
   onDelete,
+  onScan,
 }: {
   activeTheme: Theme;
   visible: boolean;
@@ -30,6 +31,7 @@ export function MealEditorModal({
   onClose: () => void;
   onSave: (meal: Meal) => void;
   onDelete: (mealId: string) => void;
+  onScan: () => void;
 }) {
   if (!draft) {
     return null;
@@ -164,10 +166,11 @@ export function MealEditorModal({
 
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={onScan}
             style={[styles.scannerSoonButton, { backgroundColor: activeTheme.modalValueBg, borderColor: activeTheme.cardBorder }]}
           >
-            <Ionicons name="scan-outline" size={17} color={activeTheme.mutedText} />
-            <Text style={[styles.scannerSoonText, { color: activeTheme.mutedText }]}>Scanner coming soon</Text>
+            <Ionicons name="scan-outline" size={17} color={accent} />
+            <Text style={[styles.scannerSoonText, { color: activeTheme.titleText }]}>Scan</Text>
           </TouchableOpacity>
 
           {isEditing && (

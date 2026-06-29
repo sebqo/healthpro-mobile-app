@@ -44,6 +44,13 @@ export const createDraftMeal = (date: string): Meal => {
     category: 'Meal',
   };
 };
+export const getGoalCompletionPercent = (value: number, goal: number) => {
+  if (!Number.isFinite(value) || !Number.isFinite(goal) || goal <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.round((Math.max(0, value) / goal) * 100));
+};
 export const clampMacroInput = (value: string) => {
   const parsedValue = Number.parseInt(value.replace(/\D/g, ''), 10);
 

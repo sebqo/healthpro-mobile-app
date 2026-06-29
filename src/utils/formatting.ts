@@ -1,3 +1,7 @@
+import { statusBad, statusGood, statusWarning } from '../constants/colors';
+
+export type GoalStatusMode = 'balanced';
+
 export const formatCalories = (value: number) => value.toLocaleString('en-US');
 export const formatHydration = (ml: number) => `${(ml / 1000).toFixed(1)} L`;
 export const formatSleep = (minutes: number) => {
@@ -14,85 +18,37 @@ export const formatSleep = (minutes: number) => {
 
   return `${hours}h ${mins}m`;
 };
+export const getGoalStatusColor = (value: number, goal: number, mode: GoalStatusMode = 'balanced') => {
+  const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
+  const safeGoal = Number.isFinite(goal) ? Math.max(goal, 1) : 1;
+  const ratio = safeValue / safeGoal;
+
+  if (mode === 'balanced' && ratio < 0.65) {
+    return statusBad;
+  }
+
+  if (mode === 'balanced' && ratio < 0.85) {
+    return statusWarning;
+  }
+
+  if (mode === 'balanced' && ratio <= 1.08) {
+    return statusGood;
+  }
+
+  if (mode === 'balanced' && ratio <= 1.25) {
+    return statusWarning;
+  }
+
+  return statusBad;
+};
 export const getSleepColor = (minutes: number) => {
-  if (minutes < 300) {
-    return '#7f1d1d';
-  }
-
-  if (minutes < 360) {
-    return '#ef4444';
-  }
-
-  if (minutes < 420) {
-    return '#f59e0b';
-  }
-
-  if (minutes < 450) {
-    return '#d9e64c';
-  }
-
-  if (minutes < 480) {
-    return '#9ee23a';
-  }
-
-  if (minutes <= 510) {
-    return '#22c55e';
-  }
-
-  if (minutes > 540) {
-    return '#65a847';
-  }
-
-  return '#35c85a';
+  return getGoalStatusColor(minutes, 480);
 };
 export const getHydrationColor = (ml: number) => {
-  if (ml <= 500) {
-    return '#991b1b';
-  }
-
-  if (ml < 1500) {
-    return '#f97316';
-  }
-
-  if (ml < 2500) {
-    return '#b8ef2f';
-  }
-
-  if (ml < 3000) {
-    return '#65c832';
-  }
-
-  return '#16a34a';
+  return getGoalStatusColor(ml, 2500);
 };
 export const getCaloriesColor = (calorieValue: number, calorieGoal: number) => {
-  const target = Math.max(calorieGoal, 1);
-  const ratio = calorieValue / target;
-
-  if (ratio < 0.25) {
-    return '#c65f54';
-  }
-
-  if (ratio < 0.5) {
-    return '#f97316';
-  }
-
-  if (ratio < 0.75) {
-    return '#facc15';
-  }
-
-  if (ratio <= 1.05) {
-    return '#22c55e';
-  }
-
-  if (ratio <= 1.22) {
-    return '#facc15';
-  }
-
-  if (ratio <= 1.45) {
-    return '#d97706';
-  }
-
-  return '#9f3f46';
+  return getGoalStatusColor(calorieValue, calorieGoal);
 };
 export const getProductivityLeftColor = (progress: number) => {
   if (progress >= 0.65) {

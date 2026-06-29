@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 import { BottomTabs } from './src/components/BottomTabs';
 import { initialActivities, initialMeals } from './src/constants/initialData';
+import { defaultGoalProfile, defaultHealthProfile } from './src/constants/nutrition';
 import { darkTheme, lightTheme } from './src/constants/theme';
 import { ActivityEditorModal } from './src/modals/ActivityEditorModal';
 import { MealEditorModal } from './src/modals/MealEditorModal';
 import { ScannerPlaceholderModal } from './src/modals/ScannerPlaceholderModal';
+import type { ScannedProduct } from './src/modals/ScannerPlaceholderModal';
 import { StatEditorModal } from './src/modals/StatEditorModal';
 import { CalendarScreen } from './src/screens/CalendarScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -17,6 +19,7 @@ import { styles } from './src/styles/styles';
 import type { Activity, ActivityDraft, ActivityModalMode, ActivityViewMode, CalorieStep, EditableStatKey, Meal, MealModalMode, MealSource, SleepStep, Stat, TabKey } from './src/types';
 import { createDraftActivity, normalizeActivityDraft } from './src/utils/activities';
 import { getMonthStartISO, getTodayISO } from './src/utils/date';
+import { calculateNutritionTargets } from './src/utils/healthTargets';
 import { createDraftMeal } from './src/utils/nutrition';
 import { formatCalories, formatHydration, formatSleep, getCaloriesColor, getHydrationColor, getProductivityLeftColor, getSleepColor } from './src/utils/formatting';
 import { formatTimeFromMinutes, getCurrentLocalMinutes, safeParseMinutes } from './src/utils/time';
@@ -44,6 +47,12 @@ export default function App() {
   const [mealModalVisible, setMealModalVisible] = useState(false);
   const [mealDraft, setMealDraft] = useState<Meal | null>(null);
   const [scannerPlaceholderVisible, setScannerPlaceholderVisible] = useState(false);
+  const [userHealthProfile, setUserHealthProfile] = useState(defaultHealthProfile);
+  const [userGoalProfile, setUserGoalProfile] = useState(defaultGoalProfile);
+  const calculatedNutritionTargets = useMemo(
+    () => calculateNutritionTargets(userHealthProfile, userGoalProfile),
+    [userHealthProfile, userGoalProfile],
+  );
   const activeTheme = isDarkMode ? darkTheme : lightTheme;
   const sleepColor = getSleepColor(sleepMinutes);
   const productivityLeftProgress = 0.62;
@@ -119,6 +128,38 @@ export default function App() {
           ? formatCalories(calories)
           : '';
 
+  const getScannedMealValue = (value?: number) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return 0;
+    }
+
+    return Math.max(0, Math.round(value));
+  };
+
+  const openScannerFromMealEditor = () => {
+    setMealModalVisible(false);
+    setMealModalMode(null);
+    setMealDraft(null);
+    setScannerPlaceholderVisible(true);
+  };
+
+  const useScannedProductForMeal = (product: ScannedProduct) => {
+    const draft = createDraftMeal(selectedNutritionDate);
+
+    setMealDraft({
+      ...draft,
+      name: product.name,
+      time: formatTimeFromMinutes(getCurrentLocalMinutes()),
+      calories: getScannedMealValue(product.calories),
+      protein: getScannedMealValue(product.protein),
+      carbs: getScannedMealValue(product.carbs),
+      fat: getScannedMealValue(product.fat),
+    });
+    setMealModalMode('new');
+    setMealModalVisible(true);
+    setScannerPlaceholderVisible(false);
+  };
+
   return (
     <View style={[styles.safeArea, { backgroundColor: activeTheme.phoneBg }]}>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
@@ -154,6 +195,7 @@ export default function App() {
             activeTheme={activeTheme}
             selectedDate={selectedNutritionDate}
             meals={meals}
+            nutritionTargets={calculatedNutritionTargets}
             onSelectDate={setSelectedNutritionDate}
             onAddMeal={() => {
               setMealDraft(createDraftMeal(selectedNutritionDate));
@@ -170,6 +212,15 @@ export default function App() {
           <ProfileScreen
             activeTheme={activeTheme}
             isDarkMode={isDarkMode}
+            healthProfile={userHealthProfile}
+            goalProfile={userGoalProfile}
+            calculatedTargets={calculatedNutritionTargets}
+            onChangeHealthProfile={(updates) =>
+              setUserHealthProfile((currentProfile) => ({ ...currentProfile, ...updates }))
+            }
+            onChangeGoalProfile={(updates) =>
+              setUserGoalProfile((currentProfile) => ({ ...currentProfile, ...updates }))
+            }
             onToggleTheme={() => setIsDarkMode((value) => !value)}
           />
         ) : (
@@ -273,11 +324,13 @@ export default function App() {
           setMealModalMode(null);
           setMealDraft(null);
         }}
+        onScan={openScannerFromMealEditor}
       />
       <ScannerPlaceholderModal
         activeTheme={activeTheme}
         visible={scannerPlaceholderVisible}
         onClose={() => setScannerPlaceholderVisible(false)}
+        onUseProduct={useScannedProductForMeal}
       />
     </View>
   );

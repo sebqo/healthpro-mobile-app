@@ -55,6 +55,32 @@ export type NutritionTotals = {
   carbs: number;
   fat: number;
 };
+export type UserSex = 'male' | 'female';
+export type HealthGoalType =
+  | 'lose_weight'
+  | 'gain_weight'
+  | 'gain_muscle'
+  | 'lose_fat_aggressive'
+  | 'body_recomposition';
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+export type UserHealthProfile = {
+  weightKg: number;
+  heightCm: number;
+  age: number;
+  sex: UserSex;
+};
+export type UserGoalProfile = {
+  targetWeightKg: number;
+  goalType: HealthGoalType;
+  activityLevel: ActivityLevel;
+  activeDaysPerWeek: number;
+  activityListText: string;
+};
+export type CalculatedNutritionTargets = NutritionTotals & {
+  bmr: number;
+  tdee: number;
+  bmi: number;
+};
 export type TimelineItem = {
   activity: Activity;
   visualStart: number;
