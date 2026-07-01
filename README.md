@@ -46,6 +46,10 @@ HealthPro combines activity planning, nutrition tracking, macro visualization, s
 |---|
 | ![Home Activity Card](docs/screenshots/home-activity-card.jpeg) |
 
+| QR Nutrition Lookup |
+|---|
+| ![QR Nutrition Lookup](docs/screenshots/qrcode-feature.gif) |
+
 ## Data Attribution
 
 Food product data is provided by Open Food Facts. Open Food Facts data is available under the Open Database License (ODbL), and product images are licensed under Creative Commons Attribution ShareAlike. This project uses or plans to use Open Food Facts for barcode-based nutrition lookup.
