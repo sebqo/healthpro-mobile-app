@@ -34,7 +34,17 @@ HealthPro combines activity planning, nutrition tracking, macro visualization, s
 
 ## Screenshots
 
-Add app screenshots to docs/screenshots before sharing the repository publicly.
+| Home Dashboard | Activity Planning | Nutrition Tracker |
+|---|---|---|
+| ![Home Dashboard](docs/screenshots/home-dashboard.jpeg) | ![Activity Planning](docs/screenshots/activity-planning.jpeg) | ![Nutrition Tracker](docs/screenshots/nutrition-tracker.jpeg) |
+
+| Food Balance / AI Summary | Profile Goals | Light Mode Nutrition |
+|---|---|---|
+| ![AI Summary](docs/screenshots/ai-summary.jpeg) | ![Profile Goals](docs/screenshots/profile-goals.jpeg) | ![Light Mode Nutrition](docs/screenshots/nutrition-light-mode.jpeg) |
+
+| Home Activity Card |
+|---|
+| ![Home Activity Card](docs/screenshots/home-activity-card.jpeg) |
 
 ## Data Attribution
 
